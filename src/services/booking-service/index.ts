@@ -17,7 +17,8 @@ async function checkEnrollmentAndTicketStatus(userId: number) {
   return ticket;
 }
 
-async function checkRoomExistAndAvaible(roomId: number) {
+async function checkRoomExistAndAvaible(userId: number, roomId: number) {
+  getBookingByUserId;
   const room = await roomRepository.findRoomById(roomId);
   if (!room) throw notFoundError();
   const bookings = await bookingRepository.findBookingsByRoomId(roomId);
@@ -37,7 +38,7 @@ async function createNewBooking(userId: number, roomId: number) {
   if (!roomId) throw badRequestError();
 
   await checkEnrollmentAndTicketStatus(userId);
-  await checkRoomExistAndAvaible(roomId);
+  await checkRoomExistAndAvaible(userId, roomId);
 
   const newBooking = await bookingRepository.createBooking(userId, roomId);
   return newBooking;
@@ -46,10 +47,12 @@ async function updateBooking(userId: number, roomId: number, bookingId: number) 
   if (!roomId) throw badRequestError();
 
   await checkEnrollmentAndTicketStatus(userId);
-  await checkRoomExistAndAvaible(roomId);
+  await checkRoomExistAndAvaible(userId, roomId);
+
+  const initialBooking = await bookingRepository.findBookingByUserId(userId);
+  if (!initialBooking) throw forbiddenError();
 
   const updateBooking = await bookingRepository.updateBooking(bookingId, roomId);
-
   const changedBooking = await bookingRepository.findBookingByUserId(userId);
 
   return changedBooking;
