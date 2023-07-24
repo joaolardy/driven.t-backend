@@ -14,6 +14,7 @@ async function checkEnrollmentAndTicketStatus(userId: number) {
   if (!ticket || ticket.status !== 'PAID' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw notFoundError();
   }
+  return ticket;
 }
 
 async function checkRoomExistAndAvaible(roomId: number) {
@@ -24,7 +25,8 @@ async function checkRoomExistAndAvaible(roomId: number) {
 }
 
 async function getBookingByUserId(userId: number) {
-  await checkEnrollmentAndTicketStatus(userId);
+  const existPaidTicket = await checkEnrollmentAndTicketStatus(userId);
+  if (!existPaidTicket) throw notFoundError;
   const booking = await bookingRepository.findBookingByUserId(userId);
   return booking;
 }
