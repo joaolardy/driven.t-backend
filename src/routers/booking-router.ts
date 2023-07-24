@@ -4,9 +4,10 @@ import { changeBooking, getBooking, postBooking } from '@/controllers';
 
 const bookingRouter = Router();
 
-bookingRouter.all('/*', authenticateToken);
-bookingRouter.get('/', getBooking);
-bookingRouter.post('/', postBooking);
-bookingRouter.put('/:bookingId', changeBooking);
+bookingRouter
+  .all('/*', authenticateToken)
+  .get('/', getBooking)
+  .post('/', postBooking)
+  .put('/:bookingId', changeBooking);
 
 export { bookingRouter };

@@ -1,5 +1,5 @@
 import enrollmentRepository from '@/repositories/enrollment-repository';
-import { badRequestError, forbiddenError, notFoundError } from '@/errors';
+import { badRequestError, forbiddenError, notFoundError, unauthorizedError } from '@/errors';
 import ticketsRepository from '@/repositories/tickets-repository';
 import bookingRepository from '@/repositories/booking-repository';
 import hotelRepository from '@/repositories/hotel-repository';
@@ -12,7 +12,7 @@ async function checkEnrollmentAndTicketStatus(userId: number) {
   const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
 
   if (!ticket || ticket.status !== 'PAID' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
-    throw notFoundError();
+    throw forbiddenError();
   }
   return ticket;
 }
@@ -20,14 +20,16 @@ async function checkEnrollmentAndTicketStatus(userId: number) {
 async function checkRoomExistAndAvaible(roomId: number) {
   const room = await roomRepository.findRoomById(roomId);
   if (!room) throw notFoundError();
-  const bookingsForRoom = await bookingRepository.findBookingsByRoomId(roomId);
-  if (room.capacity >= bookingsForRoom.length) throw forbiddenError();
+  const bookings = await bookingRepository.findBookingsByRoomId(roomId);
+  if (bookings.length >= room.capacity) throw forbiddenError();
 }
 
 async function getBookingByUserId(userId: number) {
+  if (!userId) throw unauthorizedError();
   const existPaidTicket = await checkEnrollmentAndTicketStatus(userId);
-  if (!existPaidTicket) throw notFoundError;
+  if (!existPaidTicket) throw notFoundError();
   const booking = await bookingRepository.findBookingByUserId(userId);
+  if (!booking) throw notFoundError();
   return booking;
 }
 
@@ -46,7 +48,10 @@ async function updateBooking(userId: number, roomId: number, bookingId: number) 
   await checkEnrollmentAndTicketStatus(userId);
   await checkRoomExistAndAvaible(roomId);
 
-  const changedBooking = await bookingRepository.updateBooking(bookingId, roomId);
+  const updateBooking = await bookingRepository.updateBooking(bookingId, roomId);
+
+  const changedBooking = await bookingRepository.findBookingByUserId(userId);
+
   return changedBooking;
 }
 

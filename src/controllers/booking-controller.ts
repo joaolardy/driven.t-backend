@@ -14,6 +14,7 @@ export async function getBooking(req: AuthenticatedRequest, res: Response) {
   } catch (error) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
     if (error.name === 'ForbiddenError') return res.sendStatus(403);
+    if (error.name === 'UnauthorizedError') return res.sendStatus(401);
   }
 }
 export async function postBooking(req: AuthenticatedRequest, res: Response) {
@@ -28,6 +29,7 @@ export async function postBooking(req: AuthenticatedRequest, res: Response) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
     if (error.name === 'BadRequestError') return res.sendStatus(httpStatus.BAD_REQUEST);
     if (error.name === 'ForbiddenError') return res.sendStatus(403);
+    if (error.name === 'UnauthorizedError') return res.sendStatus(401);
   }
 }
 export async function changeBooking(req: AuthenticatedRequest, res: Response) {
@@ -35,11 +37,15 @@ export async function changeBooking(req: AuthenticatedRequest, res: Response) {
   const { roomId } = req.body;
   const { bookingId } = req.params;
   try {
-    const newBooking = await bookingService.updateBooking(userId, roomId, +bookingId);
-    return res.status(httpStatus.OK).send(newBooking);
+    const changedBooking = await bookingService.updateBooking(userId, roomId, +bookingId);
+    return res.status(httpStatus.OK).send({
+      id: changedBooking.id,
+      Room: changedBooking.Room,
+    });
   } catch (error) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
     if (error.name === 'BadRequestError') return res.sendStatus(httpStatus.BAD_REQUEST);
     if (error.name === 'ForbiddenError') return res.sendStatus(403);
+    if (error.name === 'UnauthorizedError') return res.sendStatus(401);
   }
 }
