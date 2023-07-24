@@ -9,10 +9,10 @@ export function createBooking({ roomId, userId }: { roomId: number; userId: numb
   });
 }
 
-export function getBookingReturn() {
+export function getBookingExample() {
   const booking = {
     id: 1,
-    userId: 1,
+    userId: 10,
     roomId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),

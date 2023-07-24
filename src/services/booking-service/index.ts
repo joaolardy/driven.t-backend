@@ -18,11 +18,12 @@ async function checkEnrollmentAndTicketStatus(userId: number) {
 }
 
 async function checkRoomExistAndAvaible(userId: number, roomId: number) {
-  getBookingByUserId;
+  // getBookingByUserId(userId);
   const room = await roomRepository.findRoomById(roomId);
   if (!room) throw notFoundError();
   const bookings = await bookingRepository.findBookingsByRoomId(roomId);
   if (bookings.length >= room.capacity) throw forbiddenError();
+  return true;
 }
 
 async function getBookingByUserId(userId: number) {
@@ -43,14 +44,15 @@ async function createNewBooking(userId: number, roomId: number) {
   const newBooking = await bookingRepository.createBooking(userId, roomId);
   return newBooking;
 }
+
 async function updateBooking(userId: number, roomId: number, bookingId: number) {
   if (!roomId) throw badRequestError();
 
   await checkEnrollmentAndTicketStatus(userId);
-  await checkRoomExistAndAvaible(userId, roomId);
-
   const initialBooking = await bookingRepository.findBookingByUserId(userId);
   if (!initialBooking) throw forbiddenError();
+
+  await checkRoomExistAndAvaible(userId, roomId);
 
   const updateBooking = await bookingRepository.updateBooking(bookingId, roomId);
   const changedBooking = await bookingRepository.findBookingByUserId(userId);
@@ -58,5 +60,11 @@ async function updateBooking(userId: number, roomId: number, bookingId: number) 
   return changedBooking;
 }
 
-const bookingService = { getBookingByUserId, createNewBooking, updateBooking };
+const bookingService = {
+  getBookingByUserId,
+  createNewBooking,
+  updateBooking,
+  checkEnrollmentAndTicketStatus,
+  checkRoomExistAndAvaible,
+};
 export default bookingService;

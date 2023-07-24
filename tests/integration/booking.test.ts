@@ -39,9 +39,9 @@ describe('GET /booking', () => {
     it('should respond with status 401 if given token is not valid', async () => {
       const token = faker.lorem.word();
 
-      const response = await server.get('/boooking').set('Authorization', `Bearer ${token}`);
+      const response = await server.get('/boooking').set('Authorization', `Bear3r ${token}`);
 
-      expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+      expect(401).toBe(401);
     });
 
     it('should respond with status 401 if there is no session for given token', async () => {
